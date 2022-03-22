@@ -93,10 +93,11 @@ def unzip_and_read(path):
     csvpath = path.replace('.gz', '.csv')
     open(csvpath, 'w').write(r)
     print('total', total, 'data')
-    print('--------this script will print all data--------------')
+    # print('--------this script will print all data--------------')
     for i, line in enumerate(r.splitlines()):
         try:
-            print('{}/{}'.format(i, total), line)
+            # print('{}/{}'.format(i, total), line)
+            pass
         except:
             pass
 
@@ -172,9 +173,23 @@ def write_deribit_options_to_csv():
     # # finally:
     df_options.to_csv('deribit_options.csv')  
     print(df_options)
+def download_deribit_data():
+    df_deribit_list = pd.read_csv('deribit_options.csv', parse_dates=['date']) 
+    for index,row in df_deribit_list.iterrows():
+        date=str(row['date'])[:10]
+        contract=str(row['option'])
+        year=date[:4]
+        month=date[5:7]
+        file_path = 'data/{}/{}/tick-full-{}-{}.gz'.format(year,month,date, contract.replace('/', '-'))
+        download_full_ticks(contract, date, file_path)
+        unzip_and_read(file_path)
+        print("{} {}".format(date,contract))
+    print('finish')
 
 df_options=pd.DataFrame(columns=['date','btc','option','option_data','potion_price'])
 def main():
+    download_deribit_data()
+    pass
 
     # df_options.to_csv('deribit_options.csv')     
     # print('finish')
@@ -193,7 +208,7 @@ def main():
     # download_simple_ticks(contract, date, file_path)
     # unzip_and_read(file_path)
     #
-    # # full tick
+    # full tick
     # file_path = 'data/tick-full-{}-{}.gz'.format(date, contract.replace('/', '-'))
     # download_full_ticks(contract, date, file_path)
     # unzip_and_read(file_path)
